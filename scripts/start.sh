@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Disable Strict Host checking for non interactive git clones
 

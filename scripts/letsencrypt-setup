@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Lets Encrypt
 if [ -z "$WEBROOT" ] || [ -z "$GIT_EMAIL" ] || [ -z "$DOMAIN" ]; then
