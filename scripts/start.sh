@@ -137,7 +137,12 @@ fi
 
 # Increase the upload_max_filesize
 if [ ! -z "$PHP_UPLOAD_MAX_FILESIZE" ]; then
- sed -i "s/upload_max_filesize = 2M/upload_max_filesize= ${PHP_UPLOAD_MAX_FILESIZE}M/g" /etc/php7/php.ini
+ sed -i "s/upload_max_filesize = 2M/upload_max_filesize = ${PHP_UPLOAD_MAX_FILESIZE}M/g" /etc/php7/php.ini
+fi
+
+# Increase the max_execution_time
+if [ ! -z "$PHP_MAX_EXECUTION_TIME" ]; then
+ sed -i "s/max_execution_time = 30/max_execution_time = ${PHP_MAX_EXECUTION_TIME}/g" /etc/php7/php.ini
 fi
 
 # Enable xdebug
