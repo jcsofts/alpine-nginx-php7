@@ -4,6 +4,7 @@ MAINTAINER JCSoft <jcsoft@aliyun.com>
 
 
 ENV fpm_conf /etc/php7/php-fpm.d/www.conf
+ENV php_ini /etc/php7/php.ini
 
 # Add repos
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
@@ -50,13 +51,16 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/reposit
         -e "s/;listen.group = www-data/listen.group = nginx/g" \
         -e "s/listen = 127.0.0.1:9000/listen = \/var\/run\/php-fpm.sock/g" \
         -e "s/^;clear_env = no$/clear_env = no/" \
-        ${fpm_conf}
+        ${fpm_conf} &&\
+  sed -i \
+    -e "s/;session.save_path = \"\/tmp\"/session.save_path = \"\/tmp\"/g" \
+    ${php_ini}
 
-ADD conf/supervisord.conf /etc/supervisord.conf
+COPY conf/supervisord.conf /etc/supervisord.conf
 
 # Copy our nginx config
 
-ADD conf/nginx.conf /etc/nginx/nginx.conf
+COPY conf/nginx.conf /etc/nginx/nginx.conf
 
 # nginx site conf
 RUN mkdir -p /etc/nginx/sites-available/ && \
@@ -65,23 +69,23 @@ RUN mkdir -p /etc/nginx/sites-available/ && \
   rm -Rf /var/www/* && \
   mkdir /var/www/html/
 
-ADD conf/nginx-site.conf /etc/nginx/sites-available/default.conf
-ADD conf/nginx-site-ssl.conf /etc/nginx/sites-available/default-ssl.conf
+COPY conf/nginx-site.conf /etc/nginx/sites-available/default.conf
+COPY conf/nginx-site-ssl.conf /etc/nginx/sites-available/default-ssl.conf
 RUN ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/default.conf
 
-ADD scripts/start.sh /start.sh
-ADD scripts/pull /usr/bin/pull
-ADD scripts/push /usr/bin/push
-ADD scripts/letsencrypt-setup /usr/bin/letsencrypt-setup
-ADD scripts/letsencrypt-renew /usr/bin/letsencrypt-renew
-RUN chmod 755 /usr/bin/pull && chmod 755 /usr/bin/push && chmod 755 /usr/bin/letsencrypt-setup && chmod 755 /usr/bin/letsencrypt-renew && chmod 755 /start.sh
+COPY scripts/ /usr/local/bin/
+#COPY scripts/pull /usr/local/bin/pull
+#COPY scripts/push /usr/bin/push
+#COPY scripts/letsencrypt-setup /usr/bin/letsencrypt-setup
+#COPY scripts/letsencrypt-renew /usr/bin/letsencrypt-renew
+RUN chmod 755 /usr/local/bin/pull && chmod 755 /usr/local/bin/push && chmod 755 /usr/local/bin/letsencrypt-setup && chmod 755 /usr/local/bin/letsencrypt-renew && chmod 755 /usr/local/bin/start.sh
 
 #chmod 755 /usr/bin/pull && chmod 755 /usr/bin/push && 
 # copy in code
-ADD src/ /var/www/html/
-ADD errors/ /var/www/errors
+COPY src/ /var/www/html/
+COPY errors/ /var/www/errors
 
 
 EXPOSE 443 80
 
-CMD ["/start.sh"]
+CMD ["/usr/local/bin/start.sh"]
