@@ -39,7 +39,7 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/reposit
   rm -Rf /etc/nginx/nginx.conf && \
   sed -i \
         -e "s/;catch_workers_output\s*=\s*yes/catch_workers_output = yes/g" \
-        -e "s/pm.max_children = 5/pm.max_children = 4/g" \
+        -e "s/pm.max_children = 5/pm.max_children = 10/g" \
         -e "s/pm.start_servers = 2/pm.start_servers = 3/g" \
         -e "s/pm.min_spare_servers = 1/pm.min_spare_servers = 2/g" \
         -e "s/pm.max_spare_servers = 3/pm.max_spare_servers = 4/g" \
