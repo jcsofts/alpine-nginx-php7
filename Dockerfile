@@ -10,7 +10,7 @@ ENV php_ini /etc/php7/php.ini
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
   apk update && \
   apk upgrade && \
-  apk add nginx ssmtp git \
+  apk add nginx bash ssmtp git \
   php7 php7-phar php7-curl \
   php7-fpm php7-json php7-zlib php7-xml php7-xmlreader php7-xmlwriter php7-xsl php7-dom php7-ctype php7-opcache php7-zip php7-iconv \
   php7-pdo php7-pdo_mysql php7-mysqli php7-pdo_sqlite php7-pdo_pgsql php7-mbstring php7-session \
@@ -83,6 +83,7 @@ RUN chmod 755 /usr/local/bin/pull && chmod 755 /usr/local/bin/push && chmod 755 
 COPY src/ /var/www/html/
 COPY errors/ /var/www/errors
 
+VOLUME ['/var/www/html','/var/log']
 
 EXPOSE 443 80
 

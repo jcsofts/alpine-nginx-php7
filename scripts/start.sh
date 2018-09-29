@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Disable Strict Host checking for non interactive git clones
 
@@ -56,7 +56,7 @@ if [ ! -d "/var/www/html/.git" ]; then
    if [ -z "$GIT_USERNAME" ] && [ -z "$GIT_PERSONAL_TOKEN" ]; then
      GIT_COMMAND=${GIT_COMMAND}" ${GIT_REPO}"
    else
-    if [[ "$GIT_USE_SSH" == "1" ]]; then
+    if [ "$GIT_USE_SSH" == "1" ]; then
       GIT_COMMAND=${GIT_COMMAND}" ${GIT_REPO}"
     else
       GIT_COMMAND=${GIT_COMMAND}" https://${GIT_USERNAME}:${GIT_PERSONAL_TOKEN}@${GIT_REPO}"
@@ -90,24 +90,24 @@ fi
 #fi
 
 # Display PHP error's or not
-if [[ "$ERRORS" != "1" ]] ; then
-  sed -i "s/;php_flag[display_errors] = off/php_flag[display_errors] = off/g" /etc/php7/php-fpm.d/www.conf
+if [ "$ERRORS" != "1" ] ; then
+  sed -i "s/;php_flag\[display_errors\] = off/php_flag[display_errors] = off/g" /etc/php7/php-fpm.d/www.conf
 else
- sed -i "s/;php_flag[display_errors] = off/php_flag[display_errors] = on/g" /etc/php7/php-fpm.d/www.conf
+ sed -i "s/;php_flag\[display_errors\] = off/php_flag[display_errors] = on/g" /etc/php7/php-fpm.d/www.conf
  sed -i "s/display_errors = Off/display_errors = On/g" /etc/php7/php.ini
  if [ ! -z "$ERROR_REPORTING" ]; then sed -i "s/error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT/error_reporting = $ERROR_REPORTING/g" /etc/php7/php.ini; fi
  sed -i "s#;error_log = syslog#error_log = /var/log/php/error.log#g" /etc/php7/php.ini
 fi
 
 # Display Version Details or not
-if [[ "$HIDE_NGINX_HEADERS" == "0" ]] ; then
+if [ "$HIDE_NGINX_HEADERS" == "0" ] ; then
  sed -i "s/server_tokens off;/server_tokens on;/g" /etc/nginx/nginx.conf
 else
  sed -i "s/expose_php = On/expose_php = Off/g" /etc/php7/php.ini
 fi
 
 # Pass real-ip to logs when behind ELB, etc
-if [[ "$REAL_IP_HEADER" == "1" ]] ; then
+if [ "$REAL_IP_HEADER" == "1" ] ; then
  sed -i "s/#real_ip_header X-Forwarded-For;/real_ip_header X-Forwarded-For;/" /etc/nginx/sites-available/default.conf
  sed -i "s/#set_real_ip_from/set_real_ip_from/" /etc/nginx/sites-available/default.conf
  if [ ! -z "$REAL_IP_FROM" ]; then
@@ -116,7 +116,7 @@ if [[ "$REAL_IP_HEADER" == "1" ]] ; then
 fi
 # Do the same for SSL sites
 if [ -f /etc/nginx/sites-available/default-ssl.conf ]; then
- if [[ "$REAL_IP_HEADER" == "1" ]] ; then
+ if [ "$REAL_IP_HEADER" == "1" ] ; then
   sed -i "s/#real_ip_header X-Forwarded-For;/real_ip_header X-Forwarded-For;/" /etc/nginx/sites-available/default-ssl.conf
   sed -i "s/#set_real_ip_from/set_real_ip_from/" /etc/nginx/sites-available/default-ssl.conf
   if [ ! -z "$REAL_IP_FROM" ]; then
@@ -147,10 +147,10 @@ fi
 
 # Enable xdebug
 XdebugFile='/etc/php7/conf.d/xdebug.ini'
-if [[ "$ENABLE_XDEBUG" == "1" ]] ; then
+if [ "$ENABLE_XDEBUG" == "1" ] ; then
   echo "Enabling xdebug"
     # See if file contains xdebug text.
-    if grep -q xdebug.remote_enable "$XdebugFile"; then
+    if [ -f $XdebugFile ]; then
         echo "Xdebug already enabled... skipping"
     else
       sed -i "s/;zend_extension=xdebug.so/zend_extension=xdebug.so/g" $XdebugFile
@@ -162,6 +162,8 @@ if [[ "$ENABLE_XDEBUG" == "1" ]] ; then
       # NOTE: xdebug.remote_host is not needed here if you set an environment variable in docker-compose like so `- XDEBUG_CONFIG=remote_host=192.168.111.27`.
       #       you also need to set an env var `- PHP_IDE_CONFIG=serverName=docker`
     fi
+else
+  rm -rf $XdebugFile
 fi
 
 if [ ! -z "$PUID" ]; then
@@ -178,7 +180,7 @@ else
 fi
 
 # Run custom scripts
-if [[ "$RUN_SCRIPTS" == "1" ]] ; then
+if [ "$RUN_SCRIPTS" == "1" ] ; then
   if [ -d "/var/www/html/scripts/" ]; then
     # make scripts executable incase they aren't
     chmod -Rf 750 /var/www/html/scripts/*
